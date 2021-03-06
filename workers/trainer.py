@@ -1,5 +1,6 @@
 import logging
 import os
+from agent import model
 
 from src import config, util
 log = logging.getLogger(__name__)

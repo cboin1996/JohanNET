@@ -3,3 +3,4 @@
 venv
 .vscode
 .outputs
+__pycache__
