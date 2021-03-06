@@ -66,7 +66,7 @@ def read_csv(fp, index_col=None):
 def write_csv(df, fp):
     df.to_csv(fp)
 
-def initialize_dataframe(fp_in, fp_out, index_col=None):
+def initialize_dataframe(fp_in, fp_out, index_col=None, drop_cols=None):
     """Load's a dataframe at fp_in, performs processing, and writes out to file, returning the df in the process
 
     Args:
@@ -75,7 +75,7 @@ def initialize_dataframe(fp_in, fp_out, index_col=None):
         fp_out (str): file path of the destination dataframe, including filename
     """
     raw_df = read_csv(fp_in, index_col)
-     # TODO: perform preprocessing here.
-    proc_df = raw_df
+     # Perform the data preprocessing here
+    proc_df = raw_df.drop(columns=drop_cols)
     write_csv(proc_df, fp_out)
     return proc_df
