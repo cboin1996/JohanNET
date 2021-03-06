@@ -1,5 +1,7 @@
 import logging
 import os
+
+from src import config, util
 log = logging.getLogger(__name__)
 def run(experiment_dir, root_dir):
     """Launches the trainer worker.
@@ -10,6 +12,8 @@ def run(experiment_dir, root_dir):
     log.info("Trainer launched successfully.")
     
     conf = config.Default()
-    raw_data_path = os.path.join(root_dir, conf.data_fname)
-
+    processed_df = util.initialize_dataframe(os.path.join(root_dir, conf.rel_path_to_raw_data), 
+                                            os.path.join(root_dir, conf.rel_path_to_proc_data),
+                                            index_col='rowid')
+    print(processed_df.head())
     

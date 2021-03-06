@@ -7,6 +7,7 @@ import numpy as np
 import random
 import os, sys
 import logging
+import pandas as pd
 
 log = logging.getLogger(__name__)
 
@@ -56,3 +57,25 @@ def inititialize_dirs(dirs, root_dir):
         if not os.path.exists(dir_path):
             log.info(f"Making dir {dir_path}")
             os.mkdir(dir_path)
+
+
+
+def read_csv(fp, index_col=None):
+    return pd.read_csv(fp, index_col=index_col)
+
+def write_csv(df, fp):
+    df.to_csv(fp)
+
+def initialize_dataframe(fp_in, fp_out, index_col=None):
+    """Load's a dataframe at fp_in, performs processing, and writes out to file, returning the df in the process
+
+    Args:
+        fp_in (str): file path of the dataframe to process
+        index_col (int): the column containing the indices of the raw df
+        fp_out (str): file path of the destination dataframe, including filename
+    """
+    raw_df = read_csv(fp_in, index_col)
+     # TODO: perform preprocessing here.
+    proc_df = raw_df
+    write_csv(proc_df, fp_out)
+    return proc_df

@@ -1,7 +1,7 @@
 import logging
 import datetime
 
-from src import config, data, util
+from src import config, util
 from workers import trainer 
 
 import numpy as np
@@ -29,12 +29,12 @@ def start(args):
     parsed_args = util.get_cmdl_args(cmdl_args, conf.cmdl_choices)
 
     util.inititialize_dirs(conf.dirs, root_dir)
-
     """ Set the seed generators for repeatable experiments """
     np.random.seed(conf.random_seed)
     tf.random.set_seed(conf.random_seed)
     os.environ['PYTHONHASHSEED']=str(conf.random_seed)
     random.seed(conf.random_seed)
+
 
     if parsed_args.mode == conf.param_tr:
         timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
