@@ -12,6 +12,7 @@ class Default:
         self.config_json_fname = self.config_json_fname
         self.raw_data_fname = "raw_data.csv"
         self.proc_data_fname = "processed_data.csv"
+        self.raw_data_drop_cols = ['kepoi_name', 'kepler_name', 'koi_teq_err1', 'koi_teq_err2', 'koi_tce_delivname']
         self.rel_path_to_raw_data = os.path.join(self.data_dirname, self.raw_data_fname)
         self.rel_path_to_proc_data = os.path.join(self.data_dirname, self.proc_data_fname)
 

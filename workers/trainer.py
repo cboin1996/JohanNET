@@ -14,6 +14,8 @@ def run(experiment_dir, root_dir):
     conf = config.Default()
     processed_df = util.initialize_dataframe(os.path.join(root_dir, conf.rel_path_to_raw_data), 
                                             os.path.join(root_dir, conf.rel_path_to_proc_data),
-                                            index_col='rowid')
+                                            index_col='rowid',
+                                            drop_cols=conf.raw_data_drop_cols)
     print(processed_df.head())
+    
     
