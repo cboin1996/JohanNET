@@ -10,6 +10,7 @@ import logging
 import pandas as pd
 
 from sklearn import model_selection
+from sklearn.preprocessing import StandardScaler
 
 log = logging.getLogger(__name__)
 
@@ -66,18 +67,76 @@ def read_csv(fp, index_col=None):
     return pd.read_csv(fp, index_col=index_col)
 
 def write_csv(df, fp):
+    log.info(f"Generating file : {fp}")
     df.to_csv(fp)
 
-def collect_processed_data(fp_in, fp_out, index_col=None, drop_cols=None):
-    """Load's a dataframe at fp_in, performs processing, and writes out to file, returning the df in the process
+def collect_processed_data(fp_in, fp_train_features_out, fp_train_labels_out, fp_test_features_out, 
+                           fp_test_labels_out, feature_cols, label_cols, fp_valid_features_out=None, fp_valid_labels_out=None, 
+                           index_col=None, drop_cols=None,
+                           train_data_split_factor=0.75, valid_data_split_factor=0,
+                           seed=None):
+    """Load's a dataframe at fp_in, performs processing, and writes out to files
 
     Args:
         fp_in (str): file path of the dataframe to process
         index_col (int): the column containing the indices of the raw df
-        fp_out (str): file path of the destination dataframe, including filename
+        fp_train_out (str): file path for the training data
+        fp_valid_out (str): file path for the validation data
+        fp_test_out (str) : file path for the test data
+        feature_cols (list) : the list of the names of the feature columns in the raw dataframe
+        label_cols   (list) : the list of the names of the label columns in the raw dataframe
+        index_col    (str)  : the name of the inded columns (if any)
+        train_data_split_factor : the percent of data to use for training
+        valid_data_split_factor : the percent of data to use for validation (tuning hyperparameters)
+    Returns:
+        (tuple) : training feature dataset, training label dataset, test feature dataset, test label dataset, validation feature dataset, validation label dataset
     """
-    raw_df = read_csv(fp_in, index_col)
+    log.info("Beginning Data Preprocessing:")
+    test_data_split_factor = 1 - train_data_split_factor - valid_data_split_factor
+    initial_output = '\n'.join([
+        f"feature_cols: {feature_cols}",
+        f"label cols: {label_cols}",
+        f"removing columns: {drop_cols}",
+        f"Splits: {train_data_split_factor} for training, {valid_data_split_factor} for validation, {test_data_split_factor}"
+    ])
+    log.info(initial_output)
+    raw_df = read_csv(fp_in, index_col=index_col)
 
     proc_df = raw_df.drop(columns=drop_cols)
-    write_csv(proc_df, fp_out)
-    return proc_df
+
+    feature_df = proc_df.drop(columns=label_cols)
+    label_df = proc_df.drop(columns=feature_cols)
+
+    # perform split into training data, and remaining data 'intermediate'
+    train_features, intermediate_features, train_labels, intermediate_labels = model_selection.train_test_split(feature_df,
+                                                                                                                label_df,
+                                                                                                                train_size=train_data_split_factor,
+                                                                                                                random_state=seed)
+    # split data further if validation split factor is non zero
+    if valid_data_split_factor != 0:
+        test_data_split_from_remaining = 1 - (valid_data_split_factor / (1 - train_data_split_factor)) # calculates split factor scaled to the remaining data size after first split
+        test_features, validation_features, test_labels, validation_labels = model_selection.train_test_split(intermediate_features,
+                                                                                                              intermediate_labels,
+                                                                                                              train_size=test_data_split_from_remaining,
+                                                                                                              random_state=seed)
+        write_csv(validation_features, fp_valid_features_out)
+        write_csv(validation_features, fp_valid_labels_out)
+    else:   
+        test_features = intermediate_features
+        test_labels   = intermediate_labels
+        validation_features = None
+        validation_labels = None
+
+    write_csv(train_features, fp_train_features_out)
+    write_csv(train_labels, fp_train_labels_out)
+    write_csv(test_features, fp_test_features_out)
+    write_csv(test_labels, fp_test_labels_out)
+    summary = '\n'.join([
+       "Split comlete. Data lengths summarized below: ",
+       f"Total data : {len(proc_df)}",
+       f"Train : {len(train_features)}",
+       f"Test : {len(test_features)}",
+       f"Validation features : {len(validation_features)}"])
+    log.info(summary)
+    
+    return train_features.to_numpy(), train_labels.to_numpy(), test_features.to_numpy(), test_labels.to_numpy(), validation_features.to_numpy(), validation_labels.to_numpy()
