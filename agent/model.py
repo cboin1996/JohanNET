@@ -17,10 +17,10 @@ def load_models(normalized_train_features, test_labels_encoded,
     #Create inputs and following dense layers following the 2D structure of column names. Column names will be used to segment data for input
     inLayer = []
     dense1 = []
-    colNames = hPars['col_names'][0]
-    experiment_dir = hPars['experiment_dir'][0]
+    colNames = hPars['col_names']
+    experiment_dir = hPars['experiment_dir']
 
-    inLayer = tf.keras.Input(shape = len(colNames))
+    inLayer = tf.keras.Input(shape = (len(colNames), ))
 
     if hPars['activation'] == 'lrelu':
         dense1 = layers.Dense(units = len(colNames))(inLayer)
@@ -51,7 +51,7 @@ def load_models(normalized_train_features, test_labels_encoded,
                   metrics=[binary_accuracy])
     
     earlyStop = EarlyStopping(monitor= 'val_loss', mode='moderate')
-
+    print("hehh: ", experiment_dir)
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=experiment_dir)
 
     history = funcModel.fit(normalized_train_features, 
