@@ -26,9 +26,9 @@ class Default:
         """Data"""
         self.train_data_split_factor = 0.75
         self.valid_data_split_factor = 0.1
-        self.raw_data_drop_cols = ['kepoi_name', 'kepler_name', 'koi_teq_err1', 'koi_teq_err2', 'koi_tce_delivname']
+        self.raw_data_drop_cols = ['kepoi_name', 'kepler_name', 'koi_teq_err1', 'koi_teq_err2', 'koi_tce_delivname','koi_disposition', 'koi_fpflag_nt','koi_score','koi_fpflag_ss','koi_fpflag_co','koi_fpflag_ec']
 
-        self.data_label_colnames = ['kepid','koi_disposition','koi_pdisposition','koi_score','koi_fpflag_nt','koi_fpflag_ss','koi_fpflag_co','koi_fpflag_ec']
+        self.data_label_colnames = ['kepid','koi_pdisposition']
         self.data_feature_colnames = ['koi_period' ,'koi_period_err1' ,'koi_period_err2',
                                        'koi_time0bk','koi_time0bk_err1','koi_time0bk_err2',
                                        'koi_impact','koi_impact_err1' ,'koi_impact_err2',

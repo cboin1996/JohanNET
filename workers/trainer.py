@@ -1,7 +1,10 @@
 import logging
 import os
-from agent import model
-
+from agent import model as mod
+from sklearn.preprocessing import LabelEncoder
+from keras.utils.vis_utils import plot_model
+from talos import Scan
+from keras.activations import relu, sigmoid
 from sklearn.preprocessing import StandardScaler
 
 from src import config, util
@@ -50,3 +53,34 @@ def run(experiment_dir, root_dir):
 
     # normalize the test data before evaluation
     normalized_test_features = scaler.transform(test_features)
+
+    #----------------------------------------------------------------------------------
+    #Use label encoder to transform
+    enc = LabelEncoder()
+    enc.fit(["FALSE POSITIVE", "CANDIDATE"])
+    test_labels_encoded = enc.transform(train_labels[:,1])
+    train_labels_encoded = enc.transform(test_labels[:,1])
+    validation_labels_encoded = enc.transform(validation_labels[:,1])
+
+    colNames = [['koi_period' ,'koi_period_err1' ,'koi_period_err2'],
+            ['koi_time0bk','koi_time0bk_err1','koi_time0bk_err2'],
+            ['koi_impact','koi_impact_err1' ,'koi_impact_err2'],
+            ['koi_duration','koi_duration_err1','koi_duration_err2'],
+            ['koi_depth','koi_depth_err1','koi_depth_err2'],
+            ['koi_prad','koi_prad_err1','koi_prad_err2'],
+            ['koi_insol','koi_insol_err1','koi_insol_err2'],
+            ['koi_steff','koi_steff_err1','koi_steff_err2'],
+            ['koi_slogg','koi_slogg_err1','koi_slogg_err2'],
+            ['koi_srad','koi_srad_err1','koi_srad_err2'],
+            ['ra','dec','koi_kepmag', 'koi_teq','koi_model_snr','koi_tce_plnt_num']]
+
+    hPars ={
+    'activation': ['relu', 'sigmoid'],
+    'optimizer': ['Adam', 'RMSprop'],
+    'loss': ['binary_crossentropy', 'logcosh']
+    }
+
+    #model = mod.load_models(colNames, hPars, normalized_train_features, test_labels_encoded, normalized_test_features, train_labels_encoded)
+    #plot_model(model, to_file= os.path.join(experiment_dir, 'model_struct.png'), show_shapes=True, show_layer_names=True)
+    
+    h = Scan(x = normalized_train_features, y = test_labels_encoded, x_val = normalized_validation_features, y_val = validation_labels_encoded, params = hPars, model = mod.load_models, print_params = True)
