@@ -49,7 +49,7 @@ def start(args):
                             filemode='w')
 
         setup_global_logging_stream(conf)
-        trainer.run(experiment_dir, root_dir)
+        trainer.run(experiment_dir, root_dir, experiment_name=timestamp)
 
     elif parsed_args.mode == conf.param_pred:
         setup_global_logging_stream(conf)

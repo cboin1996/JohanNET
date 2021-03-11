@@ -1,12 +1,15 @@
 import logging
 import os
-from agent import model
-
+from agent import model as mod
+from sklearn.preprocessing import LabelEncoder
+from keras.utils.vis_utils import plot_model
+from talos import Scan
+from keras.activations import relu, sigmoid
 from sklearn.preprocessing import StandardScaler
 
 from src import config, util
 log = logging.getLogger(__name__)
-def run(experiment_dir, root_dir):
+def run(experiment_dir, root_dir, experiment_name):
     """Launches the trainer worker.
 
     Args:
@@ -38,7 +41,6 @@ def run(experiment_dir, root_dir):
                                                                                                                                 train_data_split_factor = conf.train_data_split_factor,
                                                                                                                                 valid_data_split_factor = conf.valid_data_split_factor,
                                                                                                                                 seed=conf.random_seed)
-    
     # normalize the training data before training
     scaler = StandardScaler()
     normalized_train_features = scaler.fit_transform(train_features)
@@ -50,3 +52,24 @@ def run(experiment_dir, root_dir):
 
     # normalize the test data before evaluation
     normalized_test_features = scaler.transform(test_features)
+
+    #----------------------------------------------------------------------------------
+    #Use label encoder to transform
+    enc = LabelEncoder()
+    enc.fit(["FALSE POSITIVE", "CANDIDATE"])
+    test_labels_encoded = enc.transform(train_labels[:,1])
+    train_labels_encoded = enc.transform(test_labels[:,1])
+    validation_labels_encoded = enc.transform(validation_labels[:,1])
+
+    hPars = dict(conf.h_pars)
+    hPars['experiment_dir'] = [experiment_dir]
+    hPars['col_names'] =  [conf.colNames]
+
+    h = Scan(x = normalized_train_features, 
+             y = test_labels_encoded, 
+             params = hPars, 
+             model = mod.load_models,
+             experiment_name=experiment_name, 
+             x_val = normalized_validation_features, 
+             y_val = validation_labels_encoded, 
+             print_params = True)

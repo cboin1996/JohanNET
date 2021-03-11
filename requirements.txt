@@ -1,6 +1,8 @@
 tensorflow
-numpy
+numpy==1.18.5
 pandas
 matplotlib
 graphviz
 sklearn
+talos
+keras

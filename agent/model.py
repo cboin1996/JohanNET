@@ -1,13 +1,67 @@
-# import keras
+import numpy as np
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+from tensorflow.keras import activations
+from keras.utils.vis_utils import plot_model
+from keras.metrics import binary_accuracy
+from keras.callbacks import EarlyStopping
 
-def load_models():
-    """[summary]
-    """
-    print("models loaded succes")
+import os
+from src import config
+import logging
 
+log = logging.getLogger(__name__)
+def load_models(normalized_train_features, test_labels_encoded, 
+                normalized_test_features, train_labels_encoded, hPars):
+    #Create inputs and following dense layers following the 2D structure of column names. Column names will be used to segment data for input
+    inLayer = []
+    dense1 = []
+    colNames = hPars['col_names'][0]
+    experiment_dir = hPars['experiment_dir'][0]
 
- #[koi_period, koi_period_err1, koi_period_err2], [koi_time0bk, koi_time0bk_err1, koi_time0bk_err2], [koi_impact, koi_impact_err1, koi_impact_err2], [koi_duration, koi_duration_err1, koi_duration_err2], [koi_depth, koi_depth_err1, koi_depth_err2], 
+    for i in range((len(colNames))):
+        inLayer.append(tf.keras.Input(shape = (len(colNames[i],))))
+        if hPars['activation'] == 'lrelu':
+            dense1 = layers.Dense(units = 1)(inLayer[i])
+            dense1.append(layers.LeakyReLU(alpha=0.1)(dense1))
+        else:
+            dense1.append(layers.Dense(units = 1, activation = hPars['activation'])(inLayer[i]))
 
+    concat = layers.Concatenate()(dense1)
+
+    if hPars['activation'] == 'lrelu':
+        outLayer = layers.Dense(units = 11)(concat)
+        outLayer = layers.LeakyReLU(alpha=0.1)(concat)
+    else:
+        outLayer = layers.Dense(units = 11, activation = hPars['activation'])(concat)
+
+    if hPars['activation'] == 'lrelu':
+        outLayer = layers.Dense(units = 5)(outLayer)
+        outLayer = layers.LeakyReLU(alpha=0.1)(outLayer)
+    else:
+        outLayer = layers.Dense(units = 5, activation = hPars['activation'])(outLayer)
+
+    outLayer = layers.Dense(units = 1, activation = hPars['activation'])(outLayer)
+
+    funcModel = tf.keras.Model(inputs = inLayer, outputs = outLayer, name = "KOIDetectionModel")
+    plot_model(funcModel, to_file= os.path.join(experiment_dir, 'model_struct.png'), show_shapes=True, show_layer_names=True)   
+
+    funcModel.compile(optimizer=hPars['optimizer'], 
+                  loss=hPars['loss'], 
+                  metrics=[binary_accuracy])
+    
+    earlyStop = EarlyStopping(monitor= 'val_loss', mode='moderate')
+
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=experiment_dir)
+
+    history = funcModel.fit(normalized_train_features, 
+                            test_labels_encoded, 
+                            validation_data=[normalized_test_features,train_labels_encoded],
+                            callbacks = [earlyStop, tensorboard_callback])
+    
+    log.info("models loaded succes")
+    return history, funcModel
 
 if __name__ == "__main__":
     print ("model test complete")
