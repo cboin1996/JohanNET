@@ -38,7 +38,8 @@ def start(args):
 
     if parsed_args.mode == conf.param_tr:
         timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        experiment_dir = os.path.join(root_dir, conf.output_dirname, timestamp+f'_seed{conf.random_seed}')
+        relative_experiment_path = os.path.join(conf.output_dirname, timestamp+f'_seed{conf.random_seed}')
+        experiment_dir = os.path.join(root_dir, relative_experiment_path)
         os.mkdir(experiment_dir)
 
         """ Setup logging to file and console """
@@ -49,7 +50,7 @@ def start(args):
                             filemode='w')
 
         setup_global_logging_stream(conf)
-        trainer.run(experiment_dir, root_dir, experiment_name=timestamp)
+        trainer.run(experiment_dir, root_dir, relative_experiment_path)
 
     elif parsed_args.mode == conf.param_pred:
         setup_global_logging_stream(conf)

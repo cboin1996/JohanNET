@@ -9,7 +9,7 @@ from sklearn.preprocessing import StandardScaler
 
 from src import config, util
 log = logging.getLogger(__name__)
-def run(experiment_dir, root_dir, experiment_name):
+def run(experiment_dir, root_dir, relative_experiment_path):
     """Launches the trainer worker.
 
     Args:
@@ -69,7 +69,7 @@ def run(experiment_dir, root_dir, experiment_name):
              y = test_labels_encoded, 
              params = hPars, 
              model = mod.load_models,
-             experiment_name=experiment_name, 
+             experiment_name=relative_experiment_path, 
              x_val = normalized_validation_features, 
              y_val = validation_labels_encoded, 
              print_params = True)

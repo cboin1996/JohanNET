@@ -51,7 +51,6 @@ def load_models(normalized_train_features, test_labels_encoded,
                   metrics=[binary_accuracy])
     
     earlyStop = EarlyStopping(monitor= 'val_loss', mode='moderate')
-    print("hehh: ", experiment_dir)
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=experiment_dir)
 
     history = funcModel.fit(normalized_train_features, 
