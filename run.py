@@ -24,7 +24,7 @@ def setup_global_logging_stream(conf: config.Default):
 
 def start(args):
     conf = config.Default()
-    root_dir = os.path.dirname(args[0])
+    root_dir = sys.path[0]
     cmdl_args = args[1:]
     parsed_args = util.get_cmdl_args(cmdl_args, conf.cmdl_choices)
 

@@ -63,7 +63,7 @@ def run(experiment_dir, root_dir, experiment_name):
 
     hPars = dict(conf.h_pars)
     hPars['experiment_dir'] = [experiment_dir]
-    hPars['col_names'] =  [conf.colNames]
+    hPars['col_names'] =  [conf.data_feature_colnames]
 
     h = Scan(x = normalized_train_features, 
              y = test_labels_encoded, 

@@ -20,21 +20,20 @@ def load_models(normalized_train_features, test_labels_encoded,
     colNames = hPars['col_names'][0]
     experiment_dir = hPars['experiment_dir'][0]
 
-    for i in range((len(colNames))):
-        inLayer.append(tf.keras.Input(shape = (len(colNames[i],))))
-        if hPars['activation'] == 'lrelu':
-            dense1 = layers.Dense(units = 1)(inLayer[i])
-            dense1.append(layers.LeakyReLU(alpha=0.1)(dense1))
-        else:
-            dense1.append(layers.Dense(units = 1, activation = hPars['activation'])(inLayer[i]))
-
-    concat = layers.Concatenate()(dense1)
+    inLayer = tf.keras.Input(shape = len(colNames))
 
     if hPars['activation'] == 'lrelu':
-        outLayer = layers.Dense(units = 11)(concat)
-        outLayer = layers.LeakyReLU(alpha=0.1)(concat)
+        dense1 = layers.Dense(units = len(colNames))(inLayer)
+        dense1 = layers.LeakyReLU(alpha=0.1)(dense1)
     else:
-        outLayer = layers.Dense(units = 11, activation = hPars['activation'])(concat)
+        dense1 = layers.Dense(units = len(colNames), activation = hPars['activation'])(inLayer)
+
+
+    if hPars['activation'] == 'lrelu':
+        outLayer = layers.Dense(units = 11)(dense1)
+        outLayer = layers.LeakyReLU(alpha=0.1)(dense1)
+    else:
+        outLayer = layers.Dense(units = 11, activation = hPars['activation'])(dense1)
 
     if hPars['activation'] == 'lrelu':
         outLayer = layers.Dense(units = 5)(outLayer)
