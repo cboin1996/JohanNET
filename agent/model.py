@@ -7,23 +7,26 @@ from keras.utils.vis_utils import plot_model
 from keras.metrics import binary_accuracy
 from keras.callbacks import EarlyStopping
 
-
 import os
-#from workers import trainer
 from src import config
+import logging
 
-
-def load_models(colNames, hPars, normalized_train_features, test_labels_encoded, normalized_test_features, train_labels_encoded):
+log = logging.getLogger(__name__)
+def load_models(normalized_train_features, test_labels_encoded, 
+                normalized_test_features, train_labels_encoded, hPars):
     #Create inputs and following dense layers following the 2D structure of column names. Column names will be used to segment data for input
     inLayer = []
     dense1 = []
+    colNames = hPars['col_names'][0]
+    experiment_dir = hPars['experiment_dir'][0]
+
     for i in range((len(colNames))):
-        inLayer.append(keras.Input(shape = (len(colNames[i],))))
+        inLayer.append(tf.keras.Input(shape = (len(colNames[i],))))
         if hPars['activation'] == 'lrelu':
             dense1 = layers.Dense(units = 1)(inLayer[i])
             dense1.append(layers.LeakyReLU(alpha=0.1)(dense1))
         else:
-            dense1 = layers.Dense(units = 1, activation = hPars['activation'])(inLayer[i])
+            dense1.append(layers.Dense(units = 1, activation = hPars['activation'])(inLayer[i]))
 
     concat = layers.Concatenate()(dense1)
 
@@ -39,19 +42,25 @@ def load_models(colNames, hPars, normalized_train_features, test_labels_encoded,
     else:
         outLayer = layers.Dense(units = 5, activation = hPars['activation'])(outLayer)
 
-    outLayer = layers.Dense(units = 1, activation = 'binary_crossentropy')(outLayer)
+    outLayer = layers.Dense(units = 1, activation = hPars['activation'])(outLayer)
 
-    funcModel = keras.Model(inputs = inLayer, outputs = outLayer, name = "KOIDetectionModel")
+    funcModel = tf.keras.Model(inputs = inLayer, outputs = outLayer, name = "KOIDetectionModel")
+    plot_model(funcModel, to_file= os.path.join(experiment_dir, 'model_struct.png'), show_shapes=True, show_layer_names=True)   
 
     funcModel.compile(optimizer=hPars['optimizer'], 
-                  loss=hPars['losses'], 
+                  loss=hPars['loss'], 
                   metrics=[binary_accuracy])
-
+    
     earlyStop = EarlyStopping(monitor= 'val_loss', mode='moderate')
 
-    history = funcModel.fit(normalized_train_features, test_labels_encoded, normalized_test_features, train_labels_encoded, validation_data = [normalized_validation_features, validation_labels_encoded], optimizer = hPars['optimizer'], callbacks = [earlyStop])
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=experiment_dir)
+
+    history = funcModel.fit(normalized_train_features, 
+                            test_labels_encoded, 
+                            validation_data=[normalized_test_features,train_labels_encoded],
+                            callbacks = [earlyStop, tensorboard_callback])
     
-    print("models loaded succes")
+    log.info("models loaded succes")
     return history, funcModel
 
 if __name__ == "__main__":

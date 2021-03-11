@@ -4,3 +4,5 @@ pandas
 matplotlib
 graphviz
 sklearn
+talos
+keras

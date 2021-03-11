@@ -41,7 +41,18 @@ class Default:
                                       'koi_steff','koi_steff_err1','koi_steff_err2',
                                       'koi_slogg','koi_slogg_err1','koi_slogg_err2',
                                       'koi_srad','koi_srad_err1','koi_srad_err2','ra','dec','koi_kepmag']
-
+        # used to define input layer structure in the model
+        self.colNames = [['koi_period' ,'koi_period_err1' ,'koi_period_err2'],
+                    ['koi_time0bk','koi_time0bk_err1','koi_time0bk_err2'],
+                    ['koi_impact','koi_impact_err1' ,'koi_impact_err2'],
+                    ['koi_duration','koi_duration_err1','koi_duration_err2'],
+                    ['koi_depth','koi_depth_err1','koi_depth_err2'],
+                    ['koi_prad','koi_prad_err1','koi_prad_err2'],
+                    ['koi_insol','koi_insol_err1','koi_insol_err2'],
+                    ['koi_steff','koi_steff_err1','koi_steff_err2'],
+                    ['koi_slogg','koi_slogg_err1','koi_slogg_err2'],
+                    ['koi_srad','koi_srad_err1','koi_srad_err2'],
+                    ['ra','dec','koi_kepmag', 'koi_teq','koi_model_snr','koi_tce_plnt_num']]
 
         """Argument Parsing"""
         self.param_tr   = 'tr'
@@ -50,8 +61,15 @@ class Default:
                              self.param_pred]       
         """Model Hyperparameters"""
         self.random_seed = 1
-
-
+            
+        # hyperparameters for tuning with talos
+        self.h_pars ={
+            'activation': ['relu', 'sigmoid'],
+            'optimizer': ['Adam', 'RMSprop'],
+            'loss': ['binary_crossentropy', 'logcosh'],
+            'experiment_dir' : [],
+            'col_names' : [],
+        }
         """Logging"""
         self.log_format = '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
         self.log_date_fmt = "%y-%m-%d %H:%M:%S"

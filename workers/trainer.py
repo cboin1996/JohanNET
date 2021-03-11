@@ -9,7 +9,7 @@ from sklearn.preprocessing import StandardScaler
 
 from src import config, util
 log = logging.getLogger(__name__)
-def run(experiment_dir, root_dir):
+def run(experiment_dir, root_dir, experiment_name):
     """Launches the trainer worker.
 
     Args:
@@ -41,7 +41,6 @@ def run(experiment_dir, root_dir):
                                                                                                                                 train_data_split_factor = conf.train_data_split_factor,
                                                                                                                                 valid_data_split_factor = conf.valid_data_split_factor,
                                                                                                                                 seed=conf.random_seed)
-    
     # normalize the training data before training
     scaler = StandardScaler()
     normalized_train_features = scaler.fit_transform(train_features)
@@ -62,25 +61,15 @@ def run(experiment_dir, root_dir):
     train_labels_encoded = enc.transform(test_labels[:,1])
     validation_labels_encoded = enc.transform(validation_labels[:,1])
 
-    colNames = [['koi_period' ,'koi_period_err1' ,'koi_period_err2'],
-            ['koi_time0bk','koi_time0bk_err1','koi_time0bk_err2'],
-            ['koi_impact','koi_impact_err1' ,'koi_impact_err2'],
-            ['koi_duration','koi_duration_err1','koi_duration_err2'],
-            ['koi_depth','koi_depth_err1','koi_depth_err2'],
-            ['koi_prad','koi_prad_err1','koi_prad_err2'],
-            ['koi_insol','koi_insol_err1','koi_insol_err2'],
-            ['koi_steff','koi_steff_err1','koi_steff_err2'],
-            ['koi_slogg','koi_slogg_err1','koi_slogg_err2'],
-            ['koi_srad','koi_srad_err1','koi_srad_err2'],
-            ['ra','dec','koi_kepmag', 'koi_teq','koi_model_snr','koi_tce_plnt_num']]
+    hPars = dict(conf.h_pars)
+    hPars['experiment_dir'] = [experiment_dir]
+    hPars['col_names'] =  [conf.colNames]
 
-    hPars ={
-    'activation': ['relu', 'sigmoid'],
-    'optimizer': ['Adam', 'RMSprop'],
-    'loss': ['binary_crossentropy', 'logcosh']
-    }
-
-    #model = mod.load_models(colNames, hPars, normalized_train_features, test_labels_encoded, normalized_test_features, train_labels_encoded)
-    #plot_model(model, to_file= os.path.join(experiment_dir, 'model_struct.png'), show_shapes=True, show_layer_names=True)
-    
-    h = Scan(x = normalized_train_features, y = test_labels_encoded, x_val = normalized_validation_features, y_val = validation_labels_encoded, params = hPars, model = mod.load_models, print_params = True)
+    h = Scan(x = normalized_train_features, 
+             y = test_labels_encoded, 
+             params = hPars, 
+             model = mod.load_models,
+             experiment_name=experiment_name, 
+             x_val = normalized_validation_features, 
+             y_val = validation_labels_encoded, 
+             print_params = True)
