@@ -128,13 +128,10 @@ def load_models(normalized_train_features, train_labels_encoded,
     cfm3.to_csv(os.path.join(fp, 'confusion_matrix_T3.csv'))
     cfm5.to_csv(os.path.join(fp, 'confusion_matrix_T5.csv'))
     cfm7.to_csv(os.path.join(fp, 'confusion_matrix_T7.csv'))
-    #cfm5.to_csv(os.path.join(fp, 'confusion_matrix_T5.csv'))
-    #cfm7.to_csv(os.path.join(fp, 'confusion_matrix_T7.csv'))
+
     
     log.info("Model Validation Saved")
     return history, funcModel
-
-#model = load_models()
 
 if __name__ == "__main__":
     print ("model test complete")
