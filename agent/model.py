@@ -128,6 +128,9 @@ def load_models(normalized_train_features, train_labels_encoded,
     cfm5 = pd.DataFrame(cfm(test_labels_encoded, thresh5))
     cfm7 = pd.DataFrame(cfm(test_labels_encoded, thresh7))
 
+
+    ###PUT CFM CALCULATIONS HERE###
+
     hpar_file = pd.DataFrame([['layer_type', h_pars['layer_type']], 
                             ['layer2_units', h_pars['layer2_units']], 
                             ['layer3_units', h_pars['layer3_units']], 
