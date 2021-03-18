@@ -93,7 +93,7 @@ def collect_processed_data(fp_in, fp_train_features_out, fp_train_labels_out, fp
 
 
     log.info("Beginning Data Preprocessing:")
-    test_data_split_factor = 1 - train_data_split_factor
+    test_data_split_factor = round(1 - train_data_split_factor - valid_data_split_factor, 2)
     initial_output = '\n'.join([
         f"feature_cols: {feature_cols}",
         f"label cols: {label_cols}",

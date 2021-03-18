@@ -69,7 +69,7 @@ def load_models(normalized_train_features, train_labels_encoded,
                             verbose = 1,
                             epochs = 10)
     #model_num = 
-    #funcModel.save(os.path.join(experiment_dir, 'Model_Weight_#%s', datetime.now(tz=None)))
+    funcModel.save(os.path.join(experiment_dir, f'Model_Weight_#{datetime.now(tz=None)}'))
     log.info("Model Weights Saved")
 
     funcModel.predict(normalized_test_features, verbose = 1)
