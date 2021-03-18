@@ -24,11 +24,11 @@ class Default:
         self.test_label_fname = 'test_labels.csv'
 
         """Data"""
-        self.train_data_split_factor = 0.75
-        self.valid_data_split_factor = 0.1
-        self.raw_data_drop_cols = ['kepoi_name', 'kepler_name', 'koi_teq_err1', 'koi_teq_err2', 'koi_tce_delivname','koi_disposition', 'koi_fpflag_nt','koi_score','koi_fpflag_ss','koi_fpflag_co','koi_fpflag_ec']
+        self.train_data_split_factor = 0.8
+        self.valid_data_split_factor = 0
+        self.raw_data_drop_cols = ['kepoi_name', 'kepler_name', 'koi_teq_err1', 'koi_teq_err2', 'koi_tce_delivname','koi_disposition', 'koi_fpflag_nt','koi_score','koi_fpflag_ss','koi_fpflag_co','koi_fpflag_ec', 'kepid']
 
-        self.data_label_colnames = ['kepid','koi_pdisposition']
+        self.data_label_colnames = ['koi_pdisposition']
         self.data_feature_colnames = ['koi_period' ,'koi_period_err1' ,'koi_period_err2',
                                        'koi_time0bk','koi_time0bk_err1','koi_time0bk_err2',
                                        'koi_impact','koi_impact_err1' ,'koi_impact_err2',
@@ -64,9 +64,9 @@ class Default:
             
         # hyperparameters for tuning with talos
         self.h_pars ={
-            'activation': ['relu', 'sigmoid'],
-            'optimizer': ['Adam', 'RMSprop'],
-            'loss': ['binary_crossentropy', 'logcosh'],
+            'activation': ['relu', 'lrelu', 'sigmoid'], #, 'sigmoid'
+            'optimizer': ['Adam'], #, 'RMSprop'
+            'loss': ['mean_squared_error', 'binary_crossentropy'], #, 'logcosh'
             'experiment_dir' : [],
             'col_names' : [],
         }

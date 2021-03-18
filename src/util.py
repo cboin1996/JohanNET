@@ -8,6 +8,7 @@ import random
 import os, sys
 import logging
 import pandas as pd
+from sklearn.preprocessing import LabelEncoder
 
 from sklearn import model_selection
 from sklearn.preprocessing import StandardScaler
@@ -61,8 +62,6 @@ def inititialize_dirs(dirs, root_dir):
             log.info(f"Making dir {dir_path}")
             os.mkdir(dir_path)
 
-
-
 def read_csv(fp, index_col=None):
     return pd.read_csv(fp, index_col=index_col)
 
@@ -91,8 +90,10 @@ def collect_processed_data(fp_in, fp_train_features_out, fp_train_labels_out, fp
     Returns:
         (tuple) : training feature dataset, training label dataset, test feature dataset, test label dataset, validation feature dataset, validation label dataset
     """
+
+
     log.info("Beginning Data Preprocessing:")
-    test_data_split_factor = 1 - train_data_split_factor - valid_data_split_factor
+    test_data_split_factor = 1 - train_data_split_factor
     initial_output = '\n'.join([
         f"feature_cols: {feature_cols}",
         f"label cols: {label_cols}",
@@ -100,12 +101,19 @@ def collect_processed_data(fp_in, fp_train_features_out, fp_train_labels_out, fp
         f"Splits: {train_data_split_factor} for training, {valid_data_split_factor} for validation, {test_data_split_factor}"
     ])
     log.info(initial_output)
-    raw_df = read_csv(fp_in, index_col=index_col)
+    raw_data = read_csv(fp_in, index_col=index_col)
+    
 
-    proc_df = raw_df.drop(columns=drop_cols)
+    proc_df = raw_data.drop(columns=drop_cols)
+    proc_df = proc_df.dropna()
 
     feature_df = proc_df.drop(columns=label_cols)
     label_df = proc_df.drop(columns=feature_cols)
+    enc = LabelEncoder()
+    label_df_enc = enc.fit_transform(label_df['koi_pdisposition'])
+    label_df = label_df.drop(columns='koi_pdisposition')
+    print(label_df.shape)
+    label_df['koi_pdisposition'] = label_df_enc
 
     # perform split into training data, and remaining data 'intermediate'
     train_features, intermediate_features, train_labels, intermediate_labels = model_selection.train_test_split(feature_df,
@@ -124,8 +132,8 @@ def collect_processed_data(fp_in, fp_train_features_out, fp_train_labels_out, fp
     else:   
         test_features = intermediate_features
         test_labels   = intermediate_labels
-        validation_features = None
-        validation_labels = None
+        validation_features = pd.DataFrame()
+        validation_labels = pd.DataFrame()
 
     write_csv(train_features, fp_train_features_out)
     write_csv(train_labels, fp_train_labels_out)
@@ -140,3 +148,6 @@ def collect_processed_data(fp_in, fp_train_features_out, fp_train_labels_out, fp
     log.info(summary)
     
     return train_features.to_numpy(), train_labels.to_numpy(), test_features.to_numpy(), test_labels.to_numpy(), validation_features.to_numpy(), validation_labels.to_numpy()
+
+    
+
