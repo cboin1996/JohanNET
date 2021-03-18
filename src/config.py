@@ -52,7 +52,8 @@ class Default:
                     ['koi_steff','koi_steff_err1','koi_steff_err2'],
                     ['koi_slogg','koi_slogg_err1','koi_slogg_err2'],
                     ['koi_srad','koi_srad_err1','koi_srad_err2'],
-                    ['ra','dec','koi_kepmag', 'koi_teq','koi_model_snr','koi_tce_plnt_num']]
+                    ['ra','dec','koi_kepmag'],
+                    ['koi_teq','koi_model_snr','koi_tce_plnt_num']]
 
         """Argument Parsing"""
         self.param_tr   = 'tr'
@@ -64,11 +65,18 @@ class Default:
             
         # hyperparameters for tuning with talos
         self.h_pars ={
-            'activation': ['relu', 'lrelu', 'sigmoid'], #, 'sigmoid'
-            'optimizer': ['Adam'], #, 'RMSprop'
-            'loss': ['mean_squared_error', 'binary_crossentropy'], #, 'logcosh'
+            'layer_type':   ['dense', 'conv'],
+            'layer2_units': [36, 24, 12],
+            'layer2_units': [12, 6, 3],
+            'activation':   ['relu', 'lrelu', 'sigmoid'],
+            'optimizer':    ['Adam'],
+            'loss':         ['mean_squared_error', 'binary_crossentropy'],
+            'dropout':      [0, 0.1, 0.2],
+
+            #Passing config variables
             'experiment_dir' : [],
-            'col_names' : [],
+            'col_dense' : [],
+            'col_conv' : [],
         }
         """Logging"""
         self.log_format = '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'

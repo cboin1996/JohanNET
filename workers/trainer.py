@@ -65,17 +65,14 @@ def run(experiment_dir, root_dir, relative_experiment_path):
     #train_labels_encoded = enc.transform(train_labels[:,1])
     #validation_labels_encoded = enc.transform(validation_labels[:,1])
     util.write_csv(pd.DataFrame(train_labels), os.path.join(experiment_dir, 'nom_feats.csv'))
-    print(normalized_train_features)
-    print(train_labels)
-    print(normalized_test_features.shape)
-    print(test_labels.shape)
-    #print(test_labels_encoded.shape)
+
     
 
 
     hPars = dict(conf.h_pars)
     hPars['experiment_dir'] = [experiment_dir]
-    hPars['col_names'] =  [conf.data_feature_colnames]
+    hPars['col_dense'] =  [conf.data_feature_colnames]
+    hPars['col_conv'] =  [conf.colNames]
     #print("Model plot saved================================================================================================================")
     h = Scan(x = normalized_train_features, 
              y = train_labels, 
