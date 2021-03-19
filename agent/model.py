@@ -144,10 +144,6 @@ def load_models(normalized_train_features, train_labels_encoded,
                 (tp5)/(tp5 + fn5),
                 (tp7)/(tp7 + fn7)]
     cfm_metrics['recall'] = recall
-
-
-    #f1 = pd.DataFrame(2*((precision.iloc[0] * recall.iloc[0])/ (precision.iloc[0] + recall.iloc[0])))
-    #print (f1)
     
     hpar_file = pd.DataFrame([['layer_type', h_pars['layer_type']], 
                             ['layer2_units', h_pars['layer2_units']], 
@@ -156,6 +152,9 @@ def load_models(normalized_train_features, train_labels_encoded,
                             ['optimizer', h_pars['optimizer']], 
                             ['loss', h_pars['loss']], 
                             ['dropout', h_pars['dropout']]])
+    cfm_metrics['model_no'] = [f'Model_Weight_#{time_stamp}',
+                            f'Model_Weight_#{time_stamp}',
+                            f'Model_Weight_#{time_stamp}']
 
     hpar_file.to_csv(os.path.join(fp, 'hyper_params.csv'))
     results.to_csv(os.path.join(fp, 'validation_results.csv'))

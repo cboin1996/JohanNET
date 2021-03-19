@@ -7,6 +7,7 @@ from keras.utils.vis_utils import plot_model
 from talos import Scan
 from keras.activations import relu, sigmoid
 from sklearn.preprocessing import StandardScaler
+import glob
 
 from src import config, util
 log = logging.getLogger(__name__)
@@ -57,17 +58,8 @@ def run(experiment_dir, root_dir, relative_experiment_path):
     normalized_test_features = scaler.transform(test_features)
 
     #----------------------------------------------------------------------------------
-    #Use label encoder to transform
-    #enc = LabelEncoder()
-    #enc.fit(["FALSE POSITIVE", "CANDIDATE"])
-    #test_labels_encoded = enc.transform(test_labels[:,1])
-    
-    #train_labels_encoded = enc.transform(train_labels[:,1])
-    #validation_labels_encoded = enc.transform(validation_labels[:,1])
+
     util.write_csv(pd.DataFrame(train_labels), os.path.join(experiment_dir, 'nom_feats.csv'))
-
-    
-
 
     hPars = dict(conf.h_pars)
     hPars['experiment_dir'] = [experiment_dir]
@@ -82,4 +74,12 @@ def run(experiment_dir, root_dir, relative_experiment_path):
              x_val = normalized_test_features, 
              y_val = test_labels, 
              print_params = True)
+
+
+
+    all_filenames = [i for i in glob.glob(os.path.join(experiment_dir, 'Model_Weight_#*', 'confusion_matrix.csv'))]
+    combined_csv = pd.concat([pd.read_csv(f) for f in all_filenames ])
+    combined_csv.to_csv(os.path.join(experiment_dir, 'combined_metrics.csv'))
+
+    
     

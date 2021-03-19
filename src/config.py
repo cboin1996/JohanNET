@@ -66,9 +66,9 @@ class Default:
         # hyperparameters for tuning with talos
         self.h_pars ={
             'layer_type':   ['dense'],
-            'layer2_units': [36, 24, 12],
-            'layer3_units': [12, 6, 3],
-            'activation':   ['relu', 'lrelu', 'sigmoid'],
+            'layer2_units': [36], #, 24, 12
+            'layer3_units': [12], #, 6, 3
+            'activation':   ['relu'], #, 'lrelu', 'sigmoid'
             'optimizer':    ['Adam'],
             'loss':         ['mean_squared_error', 'binary_crossentropy'],
             'dropout':      [0, 0.1, 0.2],
