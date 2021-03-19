@@ -124,13 +124,31 @@ def load_models(normalized_train_features, train_labels_encoded,
     results['06'] = thresh6
     results['07'] = thresh7
 
-    cfm3 = pd.DataFrame(cfm(test_labels_encoded, thresh3))
-    cfm5 = pd.DataFrame(cfm(test_labels_encoded, thresh5))
-    cfm7 = pd.DataFrame(cfm(test_labels_encoded, thresh7))
-
+    tp3, fn3, flp3, tn3 = cfm(test_labels_encoded, thresh3).ravel()
+    tp5, fn5, flp5, tn5 = cfm(test_labels_encoded, thresh5).ravel()
+    tp7, fn7, flp7, tn7 = cfm(test_labels_encoded, thresh7).ravel()
 
     ###PUT CFM CALCULATIONS HERE###
+    cfm_metrics = pd.DataFrame()
+    accuracy = [(tp3 + flp3)/(tp3 + flp3 + tn3 + fn3),
+                (tp5 + flp5)/(tp5 + flp5 + tn5 + fn5),
+                (tp7 + flp7)/(tp7 + flp7 + tn7 + fn7)]
+    cfm_metrics['accuracy'] = accuracy
 
+    precision = [(tp3)/(tp3 + flp3),
+                (tp5)/(tp5 + flp5),
+                (tp7)/(tp7 + flp7)]
+    cfm_metrics['precision'] = precision
+
+    recall = [(tp3)/(tp3 + fn3),
+                (tp5)/(tp5 + fn5),
+                (tp7)/(tp7 + fn7)]
+    cfm_metrics['recall'] = recall
+
+
+    #f1 = pd.DataFrame(2*((precision.iloc[0] * recall.iloc[0])/ (precision.iloc[0] + recall.iloc[0])))
+    #print (f1)
+    
     hpar_file = pd.DataFrame([['layer_type', h_pars['layer_type']], 
                             ['layer2_units', h_pars['layer2_units']], 
                             ['layer3_units', h_pars['layer3_units']], 
@@ -141,9 +159,14 @@ def load_models(normalized_train_features, train_labels_encoded,
 
     hpar_file.to_csv(os.path.join(fp, 'hyper_params.csv'))
     results.to_csv(os.path.join(fp, 'validation_results.csv'))
-    cfm3.to_csv(os.path.join(fp, 'confusion_matrix_T3.csv'))
-    cfm5.to_csv(os.path.join(fp, 'confusion_matrix_T5.csv'))
-    cfm7.to_csv(os.path.join(fp, 'confusion_matrix_T7.csv'))
+
+    #accuracy.to_csv(os.path.join(fp, 'confusion_matrix_accuracy.csv'))
+    #precision.to_csv(os.path.join(fp, 'confusion_matrix_precision.csv'))
+    #recall.to_csv(os.path.join(fp, 'confusion_matrix_recall.csv'))
+    #f1.to_csv(os.path.join(fp, 'confusion_matrix_f1.csv'))
+    cfm_metrics.to_csv(os.path.join(fp, 'confusion_matrix.csv'))
+    #cfm5.to_csv(os.path.join(fp, 'confusion_matrix_T5.csv'))
+    #cfm7.to_csv(os.path.join(fp, 'confusion_matrix_T7.csv'))
 
     
     log.info("Model Validation Saved")
