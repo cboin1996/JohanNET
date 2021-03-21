@@ -6,3 +6,6 @@ graphviz
 sklearn
 talos
 keras
+graphviz
+pydot
+glob

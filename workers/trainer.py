@@ -1,15 +1,17 @@
 import logging
 import os
 from agent import model as mod
+import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from keras.utils.vis_utils import plot_model
 from talos import Scan
 from keras.activations import relu, sigmoid
 from sklearn.preprocessing import StandardScaler
+import glob
 
 from src import config, util
 log = logging.getLogger(__name__)
-def run(experiment_dir, root_dir, experiment_name):
+def run(experiment_dir, root_dir, relative_experiment_path):
     """Launches the trainer worker.
 
     Args:
@@ -25,6 +27,8 @@ def run(experiment_dir, root_dir, experiment_name):
     fp_valid_labels   = os.path.join(experiment_dir, conf.val_label_fname)
     fp_test_features  = os.path.join(experiment_dir, conf.test_feat_fname)
     fp_test_labels   = os.path.join(experiment_dir, conf.test_label_fname)
+
+
 
     # separate the data for training, validation, and testing
     train_features, train_labels, test_features, test_labels, validation_features, validation_labels = util.collect_processed_data(fp_raw_data, 
@@ -48,28 +52,34 @@ def run(experiment_dir, root_dir, experiment_name):
     # training loop here
 
     # normalize the validation before validation
-    normalized_validation_features = scaler.transform(validation_features)
+    #normalized_validation_features = scaler.transform(validation_features)
 
     # normalize the test data before evaluation
     normalized_test_features = scaler.transform(test_features)
 
     #----------------------------------------------------------------------------------
-    #Use label encoder to transform
-    enc = LabelEncoder()
-    enc.fit(["FALSE POSITIVE", "CANDIDATE"])
-    test_labels_encoded = enc.transform(train_labels[:,1])
-    train_labels_encoded = enc.transform(test_labels[:,1])
-    validation_labels_encoded = enc.transform(validation_labels[:,1])
+
+    util.write_csv(pd.DataFrame(train_labels), os.path.join(experiment_dir, 'nom_feats.csv'))
 
     hPars = dict(conf.h_pars)
     hPars['experiment_dir'] = [experiment_dir]
-    hPars['col_names'] =  [conf.colNames]
-
+    hPars['col_dense'] =  [conf.data_feature_colnames]
+    hPars['col_conv'] =  [conf.colNames]
+    #print("Model plot saved================================================================================================================")
     h = Scan(x = normalized_train_features, 
-             y = test_labels_encoded, 
+             y = train_labels, 
              params = hPars, 
              model = mod.load_models,
-             experiment_name=experiment_name, 
-             x_val = normalized_validation_features, 
-             y_val = validation_labels_encoded, 
+             experiment_name=relative_experiment_path, 
+             x_val = normalized_test_features, 
+             y_val = test_labels, 
              print_params = True)
+
+
+
+    all_filenames = [i for i in glob.glob(os.path.join(experiment_dir, 'Model_Weight_#*', 'confusion_matrix.csv'))]
+    combined_csv = pd.concat([pd.read_csv(f) for f in all_filenames ])
+    combined_csv.to_csv(os.path.join(experiment_dir, 'combined_metrics.csv'))
+
+    
+    

@@ -1,7 +1,9 @@
 # commment
 
-venv
 .vscode
 .outputs
 __pycache__
 *.pyc
+.gitignore
+
+venv

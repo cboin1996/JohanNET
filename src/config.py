@@ -24,11 +24,11 @@ class Default:
         self.test_label_fname = 'test_labels.csv'
 
         """Data"""
-        self.train_data_split_factor = 0.75
-        self.valid_data_split_factor = 0.1
-        self.raw_data_drop_cols = ['kepoi_name', 'kepler_name', 'koi_teq_err1', 'koi_teq_err2', 'koi_tce_delivname','koi_disposition', 'koi_fpflag_nt','koi_score','koi_fpflag_ss','koi_fpflag_co','koi_fpflag_ec']
+        self.train_data_split_factor = 0.8
+        self.valid_data_split_factor = 0
+        self.raw_data_drop_cols = ['kepoi_name', 'kepler_name', 'koi_teq_err1', 'koi_teq_err2', 'koi_tce_delivname','koi_disposition', 'koi_fpflag_nt','koi_score','koi_fpflag_ss','koi_fpflag_co','koi_fpflag_ec', 'kepid']
 
-        self.data_label_colnames = ['kepid','koi_pdisposition']
+        self.data_label_colnames = ['koi_pdisposition']
         self.data_feature_colnames = ['koi_period' ,'koi_period_err1' ,'koi_period_err2',
                                        'koi_time0bk','koi_time0bk_err1','koi_time0bk_err2',
                                        'koi_impact','koi_impact_err1' ,'koi_impact_err2',
@@ -52,7 +52,8 @@ class Default:
                     ['koi_steff','koi_steff_err1','koi_steff_err2'],
                     ['koi_slogg','koi_slogg_err1','koi_slogg_err2'],
                     ['koi_srad','koi_srad_err1','koi_srad_err2'],
-                    ['ra','dec','koi_kepmag', 'koi_teq','koi_model_snr','koi_tce_plnt_num']]
+                    ['ra','dec','koi_kepmag'],
+                    ['koi_teq','koi_model_snr','koi_tce_plnt_num']]
 
         """Argument Parsing"""
         self.param_tr   = 'tr'
@@ -64,11 +65,18 @@ class Default:
             
         # hyperparameters for tuning with talos
         self.h_pars ={
-            'activation': ['relu', 'sigmoid'],
-            'optimizer': ['Adam', 'RMSprop'],
-            'loss': ['binary_crossentropy', 'logcosh'],
+            'layer_type':   ['dense'],
+            'layer2_units': [36], #, 24, 12
+            'layer3_units': [12], #, 6, 3
+            'activation':   ['relu'], #, 'lrelu', 'sigmoid'
+            'optimizer':    ['Adam'],
+            'loss':         ['mean_squared_error', 'binary_crossentropy'],
+            'dropout':      [0, 0.1, 0.2],
+
+            #Passing config variables
             'experiment_dir' : [],
-            'col_names' : [],
+            'col_dense' : [],
+            'col_conv' : [],
         }
         """Logging"""
         self.log_format = '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
