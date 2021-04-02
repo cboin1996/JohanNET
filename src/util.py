@@ -9,6 +9,7 @@ import os, sys
 import logging
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
+import glob
 
 from sklearn import model_selection
 from sklearn.preprocessing import StandardScaler
@@ -23,9 +24,13 @@ def get_cmdl_args(args: list, choices):
         return (list) : the list of parsed arguments
     """
     parser = argparse.ArgumentParser(description="Predict planets, its chill.")
-    parser.add_argument("mode",
-                        choices=choices,
-                        help="What mode should I run?")
+
+    parser = argparse.ArgumentParser(description="Predict planets, its chill.")
+    subparsers = parser.add_subparsers(dest="mode")
+    add_tr = subparsers.add_parser('tr', help="run in training mode")
+
+    add_ecom = subparsers.add_parser('latex', help="Compile training results into a Latex report.")
+    add_ecom.add_argument("--n", type=int, help="number of models to include in report")
 
     return parser.parse_args(args)
 
@@ -49,7 +54,10 @@ def load_json(fpath):
         return json.load(f)
 
 def latexify(s):
-    return s.replace('_', '\_').replace('%', '\%')
+    return s.replace('_', '\_').replace('%', '\%').replace('#', '\#')
+
+def strip_illegal_chars(s):
+    return s.replace('_', '').replace('%', '').replace('#', '')
 
 def print_dct(dct):
     for k, v in dct.items():
@@ -68,6 +76,10 @@ def read_csv(fp, index_col=None):
 def write_csv(df, fp):
     log.info(f"Generating file : {fp}")
     df.to_csv(fp)
+
+def find_files(file_name):
+    paths = glob.glob(file_name)
+    return paths
 
 def collect_processed_data(fp_in, fp_train_features_out, fp_train_labels_out, fp_test_features_out, 
                            fp_test_labels_out, feature_cols, label_cols, fp_valid_features_out=None, fp_valid_labels_out=None, 
