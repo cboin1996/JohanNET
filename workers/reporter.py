@@ -101,6 +101,7 @@ def generate_latex_report(results_dir, output_root, list_of_exp_paths, model_tem
     with open(report_path, 'a') as f:
         f.write('\section{Results}\n')
         f.write('\subsection{Parameter Descriptions}\n')
+        f.write("Table \\ref{tab:hyplegend} presents the hyperparameters that were tuned during the validation training of the model.")
         f.write(pd.DataFrame({'Hyperparameter' : h_pars_descriptions.keys(), "Description" : h_pars_descriptions.values()}).to_latex(caption="Hyperparameter Legend", label="tab:hyplegend"))
         all_model_metric_paths = util.find_files(os.path.join(results_dir, '*', model_templ, conf_matrix_fname))
 
@@ -108,6 +109,8 @@ def generate_latex_report(results_dir, output_root, list_of_exp_paths, model_tem
                                                         conf_matrix_prec_col, conf_matrix_rec_col, conf_matrix_model_col, conf_matrix_f1_col, conf_matrix_drop_cols,
                                                         conf_matrix_index, conf_matrix_index_name)
         f.write('\subsection{Summary of Analysis}\n')
+        f.write("Over 20 models were generated during hyperparameter tuning. Each model was compared based on the top average f1 score calculated from its confusion matrix across three thresholds: 0.3, 0.5 and 0.7. ")
+        f.write("The 5 models with the highest average f1 score were selected as the `best'. The averaged confusion matrices for the top 5 models are presented in Table \\ref{tab:summary_confmatrix}, below.")
         f.write(conf_result_df.to_latex(caption=f"Top 5 Model Confusion Matrices Selected by Highest Average f1 Score Across Thresholds {conf_matrix_index}", label=f"tab:summary_confmatrix"))
         for dir_ in list_of_exp_paths: # iterate experiments
             dir_name = os.path.basename(os.path.normpath(dir_))
@@ -130,6 +133,7 @@ def generate_latex_report(results_dir, output_root, list_of_exp_paths, model_tem
                     fig_dest = os.path.join(rep_exp_model_dir, fig_name)
                     fig_relative_path = dir_name + "/" + util.strip_illegal_chars(model_name) + "/" + fig_name
                     shutil.copy(fig_src, fig_dest)
+                    f.write(fig_map['preface'] % ("\\ref{fig:" + util.strip_illegal_chars(fig_relative_path) + "}", latexify_dir_name, latexify_model_name))
                     f.write(get_figure_str(fig_map['width'], fig_relative_path, f"fig:{util.strip_illegal_chars(fig_relative_path)}", fig_map["caption"] % (latexify_dir_name, latexify_model_name)))
 
                 # generate confusion matrix table
@@ -137,12 +141,14 @@ def generate_latex_report(results_dir, output_root, list_of_exp_paths, model_tem
                 model_conf_matrix = calc_f1_for_matrix(model_conf_matrix_fpath, conf_matrix_prec_col, conf_matrix_rec_col, conf_matrix_f1_col, conf_matrix_drop_cols, 
                                                         index=conf_matrix_index, index_name=conf_matrix_index_name)
                 model_conf_matrix = model_conf_matrix.drop(columns=[conf_matrix_model_col])
+                f.write("Table \\ref{tab:conf_matr%s} presents the confusion matrix for experiment %s %s.\n" % (util.strip_illegal_chars(rep_exp_model_name), latexify_dir_name, latexify_model_name))
                 f.write(model_conf_matrix.to_latex(caption=f"Confusion Matrix for {latexify_dir_name} {latexify_model_name}", label=f"tab:conf_matr{util.strip_illegal_chars(rep_exp_model_name)}"))
 
                 # output hyperparameters
                 hyp_df = util.read_csv(os.path.join(model_fpath, h_pars_fname))
                 hyp_df = hyp_df.drop(columns = hyp_drop_cols)
                 hyp_df.columns = h_pars_header
+                f.write("Table \\ref{tab:hyp%s} presents the hyperparameters used for experiment %s %s.\n" % (util.strip_illegal_chars(rep_exp_model_name), latexify_dir_name, latexify_model_name))
                 f.write(hyp_df.to_latex(caption=f"Hyperparameter's for {latexify_dir_name} {latexify_model_name}", label=f"tab:hyp{util.strip_illegal_chars(rep_exp_model_name)}"))
         
     print(f"Completed generating your report in {report_path}")

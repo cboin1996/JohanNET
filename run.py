@@ -59,7 +59,8 @@ def start(args):
         list_of_exp_paths = util.find_files(os.path.join(res_dir, '*'))
         fig_params = [{"name" : conf.model_struct_fname,
                     "width" : 0.5,
-                    "caption" : "Network model for %s %s"}
+                    "caption" : "Network model for %s %s",
+                    "preface" : "Figure %s presents the model structure for %s %s.\n"}
         ]
 
         reporter.generate_latex_report(res_dir, 
