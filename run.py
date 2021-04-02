@@ -2,7 +2,7 @@ import logging
 import datetime
 
 from src import config, util
-from workers import trainer 
+from workers import trainer, reporter
 
 import numpy as np
 import tensorflow as tf
@@ -34,10 +34,9 @@ def start(args):
     tf.random.set_seed(conf.random_seed)
     os.environ['PYTHONHASHSEED']=str(conf.random_seed)
     random.seed(conf.random_seed)
-
+    timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 
     if parsed_args.mode == conf.param_tr:
-        timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         relative_experiment_path = os.path.join(conf.output_dirname, timestamp+f'_seed{conf.random_seed}')
         experiment_dir = os.path.join(root_dir, relative_experiment_path)
         os.mkdir(experiment_dir)
@@ -52,8 +51,23 @@ def start(args):
         setup_global_logging_stream(conf)
         trainer.run(experiment_dir, root_dir, relative_experiment_path)
 
-    elif parsed_args.mode == conf.param_pred:
+    
+    elif parsed_args.mode == conf.param_latex:
         setup_global_logging_stream(conf)
+        report_root = os.path.join(root_dir, conf.report_dirname)
+        res_dir = os.path.join(root_dir, conf.output_dirname)
+        list_of_exp_paths = util.find_files(os.path.join(res_dir, '*'))
+        fig_params = [{"name" : conf.model_struct_fname,
+                    "width" : 0.5,
+                    "caption" : "Network model for %s %s"}
+        ]
+
+        reporter.generate_latex_report(res_dir, 
+                                        report_root, 
+                                        list_of_exp_paths, 
+                                        "Model_Weight_#*", 
+                                        conf,
+                                        parsed_args.n, False, timestamp, fig_params, 0.5)
 
 
 if __name__=="__main__":
