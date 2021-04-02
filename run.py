@@ -58,9 +58,9 @@ def start(args):
         res_dir = os.path.join(root_dir, conf.output_dirname)
         list_of_exp_paths = util.find_files(os.path.join(res_dir, '*'))
         fig_params = [{"name" : conf.model_struct_fname,
-                    "width" : 0.5,
+                    "width" : 0.4,
                     "caption" : "Network model for %s %s",
-                    "preface" : "Figure %s presents the model structure for %s %s.\n"}
+                    "preface" : "Figure %s presents the model structure for experiment %s and model %s.\n"}
         ]
 
         reporter.generate_latex_report(res_dir, 
@@ -68,7 +68,7 @@ def start(args):
                                         list_of_exp_paths, 
                                         "Model_Weight_#*", 
                                         conf,
-                                        parsed_args.n, False, timestamp, fig_params, 0.5)
+                                        parsed_args.n, False, timestamp, fig_params)
 
 
 if __name__=="__main__":

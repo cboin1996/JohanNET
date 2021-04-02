@@ -65,7 +65,7 @@ def get_figure_str(fig_width, fig_path, fig_label, fig_caption):
     return figure
 
 def generate_latex_report(results_dir, output_root, list_of_exp_paths, model_templ, conf, 
-                          num_to_report, ascending, report_timestamp, fig_params, fig_width):
+                          num_to_report, ascending, report_timestamp, fig_params):
     """Generates a latex report body
 
     Args:
@@ -77,7 +77,6 @@ def generate_latex_report(results_dir, output_root, list_of_exp_paths, model_tem
         ascending (bool) : True, False ascending or descending
         report_timestamp (str): timestampe for the report folder
         fig_params (dict): paramaters for formatting figures
-        fig_width  (float) : width of figures
     """
     conf_matrix_acc_col = conf.conf_matrix_acc_col
     conf_matrix_prec_col = conf.conf_matrix_prec_col
@@ -109,9 +108,15 @@ def generate_latex_report(results_dir, output_root, list_of_exp_paths, model_tem
                                                         conf_matrix_prec_col, conf_matrix_rec_col, conf_matrix_model_col, conf_matrix_f1_col, conf_matrix_drop_cols,
                                                         conf_matrix_index, conf_matrix_index_name)
         f.write('\subsection{Summary of Analysis}\n')
-        f.write("Over 20 models were generated during hyperparameter tuning. Each model was compared based on the top average f1 score calculated from its confusion matrix across three thresholds: 0.3, 0.5 and 0.7. ")
+        if len(list_of_exp_paths) == 1:
+            f.write("An experiment was conducted including the training and validation of many models using a single random seed value. For the experiment ")
+        else:
+            f.write("An experiment was conducted including the training and validation of many models using a variety of random seeds. For all experiments ")
+
+        f.write("each model was compared based on the top average f1 score calculated from its confusion matrix across three thresholds: 0.3, 0.5 and 0.7. ")
         f.write("The 5 models with the highest average f1 score were selected as the `best'. The averaged confusion matrices for the top 5 models are presented in Table \\ref{tab:summary_confmatrix}, below.")
         f.write(conf_result_df.to_latex(caption=f"Top 5 Model Confusion Matrices Selected by Highest Average f1 Score Across Thresholds {conf_matrix_index}", label=f"tab:summary_confmatrix"))
+
         for dir_ in list_of_exp_paths: # iterate experiments
             dir_name = os.path.basename(os.path.normpath(dir_))
             latexify_dir_name = util.latexify(dir_name)
@@ -141,14 +146,14 @@ def generate_latex_report(results_dir, output_root, list_of_exp_paths, model_tem
                 model_conf_matrix = calc_f1_for_matrix(model_conf_matrix_fpath, conf_matrix_prec_col, conf_matrix_rec_col, conf_matrix_f1_col, conf_matrix_drop_cols, 
                                                         index=conf_matrix_index, index_name=conf_matrix_index_name)
                 model_conf_matrix = model_conf_matrix.drop(columns=[conf_matrix_model_col])
-                f.write("Table \\ref{tab:conf_matr%s} presents the confusion matrix for experiment %s %s.\n" % (util.strip_illegal_chars(rep_exp_model_name), latexify_dir_name, latexify_model_name))
+                f.write("Table \\ref{tab:conf_matr%s} presents the confusion matrix for experiment %s and model %s.\n" % (util.strip_illegal_chars(rep_exp_model_name), latexify_dir_name, latexify_model_name))
                 f.write(model_conf_matrix.to_latex(caption=f"Confusion Matrix for {latexify_dir_name} {latexify_model_name}", label=f"tab:conf_matr{util.strip_illegal_chars(rep_exp_model_name)}"))
 
                 # output hyperparameters
                 hyp_df = util.read_csv(os.path.join(model_fpath, h_pars_fname))
                 hyp_df = hyp_df.drop(columns = hyp_drop_cols)
                 hyp_df.columns = h_pars_header
-                f.write("Table \\ref{tab:hyp%s} presents the hyperparameters used for experiment %s %s.\n" % (util.strip_illegal_chars(rep_exp_model_name), latexify_dir_name, latexify_model_name))
+                f.write("Table \\ref{tab:hyp%s} presents the hyperparameters used for experiment %s and model %s.\n" % (util.strip_illegal_chars(rep_exp_model_name), latexify_dir_name, latexify_model_name))
                 f.write(hyp_df.to_latex(caption=f"Hyperparameter's for {latexify_dir_name} {latexify_model_name}", label=f"tab:hyp{util.strip_illegal_chars(rep_exp_model_name)}"))
         
     print(f"Completed generating your report in {report_path}")
